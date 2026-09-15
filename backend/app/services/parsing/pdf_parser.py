@@ -1,6 +1,8 @@
 import io
 
 import pdfplumber
+from pdfminer.pdfdocument import PDFPasswordIncorrect
+from pdfplumber.utils.exceptions import PdfminerException
 
 from app.services.parsing.common import ParsedTransaction, parse_amount, parse_date
 from app.services.parsing.csv_parser import AMOUNT_COLUMNS, CREDIT_COLUMNS, DATE_COLUMNS, DEBIT_COLUMNS, DESC_COLUMNS
@@ -10,6 +12,10 @@ class PDFParseError(Exception):
     pass
 
 
+class PDFPasswordRequired(Exception):
+    """Raised when a PDF is encrypted and the given password (if any) didn't open it."""
+
+
 def _header_index(headers: list[str], candidates: set[str]) -> int | None:
     for i, header in enumerate(headers):
         if (header or "").strip().lower() in candidates:
@@ -17,17 +23,33 @@ def _header_index(headers: list[str], candidates: set[str]) -> int | None:
     return None
 
 
-def parse_pdf(content: bytes) -> list[ParsedTransaction]:
+def parse_pdf(content: bytes, password: str = "") -> list[ParsedTransaction]:
     """Best-effort bank statement PDF parser.
 
     Works well for statements that render as real tables (most net-banking
     exports). Statements that are scanned images, or lay out transactions as
     free text rather than a table, will need a bank-specific parser — this is
     a starting point, not a universal solution.
+
+    Raises PDFPasswordRequired if the PDF is encrypted and `password` (empty
+    string if none was supplied) doesn't open it — most Indian bank
+    statements are password-protected by default (often PAN + DOB).
     """
     results: list[ParsedTransaction] = []
 
-    with pdfplumber.open(io.BytesIO(content)) as pdf:
+    try:
+        pdf_context = pdfplumber.open(io.BytesIO(content), password=password)
+    except PDFPasswordIncorrect as exc:
+        raise PDFPasswordRequired() from exc
+    except PdfminerException as exc:
+        # pdfplumber wraps every pdfminer error in its own exception type,
+        # so the wrong-password case has to be unwrapped to tell it apart
+        # from a genuinely corrupt/unsupported PDF.
+        if isinstance(exc.args[0] if exc.args else None, PDFPasswordIncorrect):
+            raise PDFPasswordRequired() from exc
+        raise PDFParseError(f"Couldn't open this PDF: {exc}") from exc
+
+    with pdf_context as pdf:
         header_row: list[str] | None = None
         date_i = desc_i = debit_i = credit_i = amount_i = None
 

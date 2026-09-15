@@ -37,7 +37,7 @@ export interface Statement {
   id: string;
   account_id: string;
   filename: string;
-  status: "processing" | "done" | "failed";
+  status: "processing" | "done" | "failed" | "password_required";
   error_message: string | null;
   transaction_count: number;
   period_start: string | null;

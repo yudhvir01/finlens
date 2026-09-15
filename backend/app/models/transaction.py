@@ -14,6 +14,7 @@ class StatementStatus(str, Enum):
     processing = "processing"
     done = "done"
     failed = "failed"
+    password_required = "password_required"
 
 
 class Statement(Base):

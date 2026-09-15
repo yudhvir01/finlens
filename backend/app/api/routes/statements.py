@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -27,6 +27,8 @@ def _get_owned_account(db: Session, account_id: uuid.UUID, user: User) -> Accoun
 async def upload_statement(
     account_id: uuid.UUID,
     file: UploadFile = File(...),
+    password: str | None = Form(None),
+    remember_password: bool = Form(True),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
@@ -47,7 +49,7 @@ async def upload_statement(
 
     # Synchronous for the MVP — statements are small enough to parse inline.
     # A production build would enqueue this onto the Redis/RQ worker instead.
-    ingest_statement(db, statement, statement.filename, content)
+    ingest_statement(db, statement, statement.filename, content, password=password or None, remember_password=remember_password)
     db.refresh(statement)
     return statement
 
@@ -61,3 +63,17 @@ def list_statements(db: Session = Depends(get_db), user: User = Depends(get_curr
         .order_by(Statement.uploaded_at.desc())
         .all()
     )
+
+
+@router.delete("/statements/{statement_id}", status_code=204)
+def delete_statement(statement_id: uuid.UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    statement = (
+        db.query(Statement)
+        .join(Account, Account.id == Statement.account_id)
+        .filter(Statement.id == statement_id, Account.user_id == user.id)
+        .first()
+    )
+    if not statement:
+        raise HTTPException(status_code=404, detail="Statement not found")
+    db.delete(statement)
+    db.commit()

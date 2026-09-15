@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24 * 7
 
+    # Fernet key encrypting saved statement passwords at rest. Rotating this
+    # invalidates every saved password (accounts fall back to prompting again).
+    statement_encryption_key: str = "AggGCewtgGlqkmTrMdr-2d10QuitQOiq40WFHScgccQ="
+
     cors_origins: list[str] = ["http://localhost:5173"]
 
 

@@ -24,6 +24,9 @@ class Account(Base):
     institution: Mapped[str | None] = mapped_column(String(255), nullable=True)
     account_type: Mapped[AccountType] = mapped_column(String(20), default=AccountType.bank)
     last_four: Mapped[str | None] = mapped_column(String(4), nullable=True)
+    # Fernet-encrypted PDF password, remembered after a successful unlock so
+    # later statements from this account don't need to ask again.
+    statement_password_encrypted: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     user: Mapped["User"] = relationship(back_populates="accounts")
