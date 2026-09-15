@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Theme tokens — restrained slate UI, emerald as the one accent (money,
+  growth, trust). Income/expense get their own semantic colors so cash-flow
+  charts don't have to borrow the brand accent for "expense".
+*/
+:root {
+  --radius: 0.625rem;
+  --background: #f7f8fa;
+  --foreground: #101828;
+  --card: #ffffff;
+  --card-foreground: #101828;
+  --popover: #ffffff;
+  --popover-foreground: #101828;
+  --primary: #059669;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f4;
+  --secondary-foreground: #101828;
+  --muted: #f1f5f4;
+  --muted-foreground: #64748b;
+  --accent: #ecfdf5;
+  --accent-foreground: #101828;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --income: #0ca30c;
+  --expense: #e34948;
+  --border: #e2e8ec;
+  --input: #e2e8ec;
+  --ring: #059669;
+
+  /* Validated categorical palette (dataviz skill default) — fixed order,
+     never cycled or reassigned per-filter. */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+  --chart-6: #008300;
+  --chart-7: #4a3aa7;
+  --chart-8: #e34948;
+  --chart-gridline: #e1e0d9;
+  --chart-baseline: #c3c2b7;
+}
+
+.dark {
+  --background: #0a0e0d;
+  --foreground: #eef2f1;
+  --card: #101613;
+  --card-foreground: #eef2f1;
+  --popover: #101613;
+  --popover-foreground: #eef2f1;
+  --primary: #34d399;
+  --primary-foreground: #052e22;
+  --secondary: #151d1a;
+  --secondary-foreground: #eef2f1;
+  --muted: #151d1a;
+  --muted-foreground: #8b9a95;
+  --accent: #16231d;
+  --accent-foreground: #eef2f1;
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+  --income: #4ade80;
+  --expense: #e66767;
+  --border: #223029;
+  --input: #223029;
+  --ring: #34d399;
+
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-6: #008300;
+  --chart-7: #9085e9;
+  --chart-8: #e66767;
+  --chart-gridline: #2c2c2a;
+  --chart-baseline: #383835;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-income: var(--income);
+  --color-expense: var(--expense);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-feature-settings: "cv11";
+}
+
+.font-mono-figures {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+/* Light/dark toggle transition: a circle wipe expanding from the clicked
+   toggle button, driven by the View Transitions API (see ThemeToggle).
+   Browsers without support just swap instantly — no animation, no error. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: none;
+    z-index: 1;
+  }
+  ::view-transition-new(root) {
+    animation: none;
+    z-index: 2;
+  }
+}
