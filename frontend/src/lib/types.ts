@@ -10,6 +10,7 @@ export interface Account {
   institution: string | null;
   account_type: string;
   last_four: string | null;
+  has_saved_password: boolean;
 }
 
 export interface Category {

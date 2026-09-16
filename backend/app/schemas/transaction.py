@@ -45,6 +45,7 @@ class AccountResponse(BaseModel):
     institution: str | None
     account_type: str
     last_four: str | None
+    has_saved_password: bool
 
     class Config:
         from_attributes = True
@@ -55,6 +56,20 @@ class AccountCreate(BaseModel):
     institution: str | None = None
     account_type: str = "bank"
     last_four: str | None = None
+
+
+class AccountUpdate(BaseModel):
+    name: str | None = None
+    institution: str | None = None
+    account_type: str | None = None
+    last_four: str | None = None
+    # Tri-state via exclude_unset: omitted = leave alone, "" = clear the
+    # saved password, non-empty = replace it (re-encrypted before storing).
+    statement_password: str | None = None
+
+
+class StatementPasswordResponse(BaseModel):
+    password: str | None
 
 
 class StatementResponse(BaseModel):

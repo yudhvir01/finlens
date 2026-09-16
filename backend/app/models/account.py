@@ -32,3 +32,7 @@ class Account(Base):
     user: Mapped["User"] = relationship(back_populates="accounts")
     statements: Mapped[list["Statement"]] = relationship(back_populates="account", cascade="all, delete-orphan")
     transactions: Mapped[list["Transaction"]] = relationship(back_populates="account", cascade="all, delete-orphan")
+
+    @property
+    def has_saved_password(self) -> bool:
+        return self.statement_password_encrypted is not None
